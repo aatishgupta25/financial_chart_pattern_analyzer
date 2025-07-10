@@ -1,0 +1,24 @@
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+
+# Model checkpoints and binaries
+*.pt
+
+# FAISS index files
+*.faiss
+*.pkl
+
+# Data and documents
+/data/
+/documents/
+/faiss_index/
+
+.DS_Store
+
+.vscode/
+
+.ipynb_checkpoints/
+
+*.log
