@@ -23,14 +23,14 @@ class ChartDataset(Dataset):
         self.image_files = sorted([f for f in os.listdir(chart_dir) if f.endswith('.png')])
         self.labels = {}
 
-        # All labels are loaded into memory; suitable for datasets of thousands
+
         for filename in os.listdir(label_dir):
             if filename.endswith('.txt'):
                 base_name = filename.replace('.txt', '')
                 with open(os.path.join(label_dir, filename), 'r') as f:
                     self.labels[base_name] = f.read().strip()
 
-        # Pairs of (image_file_path, label_text) are created for direct indexed access
+
         self.data_pairs = []
         for img_filename in self.image_files:
             base_name = img_filename.replace('.png', '')
@@ -39,8 +39,7 @@ class ChartDataset(Dataset):
             else:
                 print(f"Warning: No label found for image {img_filename}. Skipping.")
 
-        # A vocabulary for pattern labels is defined, including special tokens
-        # This vocabulary should encompass all possible pattern labels returned by the detection logic
+
         self.unique_labels = sorted(list(set(self.labels.values())))
         self.vocab = {
             '<pad>': 0,
@@ -62,26 +61,24 @@ class ChartDataset(Dataset):
 
         img_path, label_text = self.data_pairs[idx]
 
-        # The image is loaded and converted to RGB to ensure 3 channels.
+
         image = Image.open(img_path).convert("RGB")
 
         if self.transform:
             image = self.transform(image)
-
-        # Label text is tokenized. For simple, single-word labels, they are treated as single tokens
-        # Special <sos> and <eos> tokens are added for the decoder
+            
         label_tokens = [self.vocab['<sos>']] + [self.vocab.get(label_text, self.vocab['<unk>'])] + [self.vocab['<eos>']]
         label_tensor = torch.tensor(label_tokens, dtype=torch.long)
 
         return image, label_tensor
 
-# Example usage block for self-testing
+
 if __name__ == "__main__":
-    # Image transformations are defined for consistency with model input requirements
+    
     data_transforms = transforms.Compose([
-        transforms.Resize((224, 224)), # Resizing to 224x224 pixels is required by ViT-B-16
+        transforms.Resize((224, 224)), 
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]), # ImageNet-specific normalization is applied
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]), 
     ])
 
     CHART_DIR = 'data/charts'
@@ -93,12 +90,11 @@ if __name__ == "__main__":
     print(f"Unique patterns detected: {chart_dataset.unique_labels}")
     print(f"Vocabulary: {chart_dataset.vocab}")
 
-    # A sample from the dataset is accessed for verification
     if len(chart_dataset) > 0:
         img_tensor, label_tensor = chart_dataset[0]
-        print(f"\nShape of image tensor: {img_tensor.shape}") # Expected shape is [C, H, W], e.g., [3, 224, 224]
+        print(f"\nShape of image tensor: {img_tensor.shape}") 
         print(f"Label tensor: {label_tensor}")
-        # The label tensor is converted back to text for verification purposes
+        
         decoded_label = [chart_dataset.idx_to_token[idx.item()] for idx in label_tensor]
         print(f"Decoded label: {decoded_label}")
     else:
