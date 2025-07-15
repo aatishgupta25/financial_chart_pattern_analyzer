@@ -8,7 +8,6 @@ from model import ChartSenseVLM
 from tqdm import tqdm
 import os
 
-
 CHART_DIR = 'data/charts'
 LABEL_DIR = 'data/labels'
 
