@@ -1,4 +1,4 @@
-# model.py (Updated TextDecoder and ChartSenseVLM parts)
+# model.py 
 
 import torch
 import torch.nn as nn
@@ -35,19 +35,14 @@ class TextDecoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        # Define initial_hidden_projection in __init__ so its parameters are moved to device
-        # The condition will still be checked in forward, but the layer is always defined
         if encoder_output_dim != hidden_size:
             self.initial_hidden_projection = nn.Linear(encoder_output_dim, hidden_size)
         else:
-            self.initial_hidden_projection = nn.Identity() # Use Identity if no projection is needed
-
+            self.initial_hidden_projection = nn.Identity() 
 
     def forward(self, features: torch.Tensor, target_sequence: torch.Tensor = None, max_len: int = None, teacher_forcing_ratio: float = 0.5) -> torch.Tensor:
         batch_size = features.size(0)
 
-        # Apply the initial_hidden_projection if it's not an Identity module
-        # It's now correctly defined in __init__ and moved to device with the rest of the model
         projected_features = self.initial_hidden_projection(features)
         hidden = projected_features.unsqueeze(0).repeat(self.num_layers, 1, 1)
 
@@ -65,8 +60,8 @@ class TextDecoder(nn.Module):
             logits = self.fc(gru_output)
             return logits
 
-        else: # Inference (greedy decoding)
-            input_token = torch.tensor([2] * batch_size, dtype=torch.long, device=features.device).unsqueeze(1) # <sos> token
+        else: 
+            input_token = torch.tensor([2] * batch_size, dtype=torch.long, device=features.device).unsqueeze(1) 
 
             for _ in range(max_len):
                 embedded = self.embedding(input_token)
@@ -80,7 +75,7 @@ class TextDecoder(nn.Module):
                 predicted_token = logits.argmax(1)
 
                 input_token = predicted_token.unsqueeze(1)
-                if (predicted_token == self.vocab_size - 1).all(): # Check if all sequences predicted <eos>
+                if (predicted_token == self.vocab_size - 1).all(): 
                     break
             return torch.stack(outputs, dim=1)
 
@@ -107,8 +102,6 @@ class ChartSenseVLM(nn.Module):
         logits = self.decoder(features, target_sequences, max_len, teacher_forcing_ratio)
         return logits
 
-
-# Example usage (if you re-run model.py directly after this change, it should work)
 if __name__ == "__main__":
     dummy_vocab = {
         '<pad>': 0, '<unk>': 1, '<sos>': 2, '<eos>': 3,
@@ -119,7 +112,6 @@ if __name__ == "__main__":
     HIDDEN_SIZE = 512
 
     model = ChartSenseVLM(dummy_vocab, EMBED_DIM, HIDDEN_SIZE)
-    # Important: Move the model to device immediately after creation for testing too!
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model.to(device)
 
@@ -127,13 +119,13 @@ if __name__ == "__main__":
     print(model)
 
     BATCH_SIZE = 4
-    dummy_images = torch.randn(BATCH_SIZE, 3, 224, 224).to(device) # Move dummy input to device
+    dummy_images = torch.randn(BATCH_SIZE, 3, 224, 224).to(device) 
     dummy_target_sequences = torch.tensor([
         [2, 4, 3], # doji
         [2, 5, 3], # hammer
         [2, 6, 3], # bullish engulfing
         [2, 4, 3]  # doji
-    ], dtype=torch.long).to(device) # Move dummy labels to device
+    ], dtype=torch.long).to(device) 
 
     model.train()
     logits_train = model(dummy_images, dummy_target_sequences)
