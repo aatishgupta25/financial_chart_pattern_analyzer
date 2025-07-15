@@ -134,7 +134,7 @@ def explain_pattern(pattern_name: str) -> str:
 def create_chart_sense_agent():
     try:
         
-        llm = ChatOllama(model="gemma3:4b-it-qat", temperature=0.7)
+        llm = ChatOllama(model="gemma3:4b-it-qat", temperature=0.3)
         print("Using Ollama LLM.")
     except Exception as e:
         print(f"Error initializing Ollama LLM. It is ensured that Ollama is running and the specified model is downloaded. Error: {e}")
