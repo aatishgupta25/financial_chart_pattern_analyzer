@@ -5,26 +5,24 @@ def is_doji(df: pd.DataFrame, i: int) -> bool:
     Determines if a candlestick at a given index exhibits the "Doji" pattern.
     A Doji occurs when the open and close prices are nearly identical, indicating market indecision.
     """
-    # Out-of-bounds access for 'i' is handled.
     if i >= len(df) or i < 0:
         return False
 
     row = df.iloc[i]
 
-    # The ticker symbol is dynamically retrieved from the DataFrame's MultiIndex columns.
     try:
         if isinstance(df.columns, pd.MultiIndex):
-            ticker_symbol = df.columns[0][1] # The ticker is extracted from the second level of the first column.
+            ticker_symbol = df.columns[0][1]
         else:
             raise ValueError("DataFrame columns are not a MultiIndex as expected.")
 
     except (IndexError, ValueError) as e:
-        # Errors during ticker symbol determination from DataFrame columns are handled.
+        
         print(f"Error determining ticker symbol from DataFrame columns: {e}")
-        # Assuming the structure observed in debug, a re-attempt to extract the ticker is made.
+        
         ticker_symbol = df.columns[0][1]
 
-    # Values are accessed using the MultiIndex tuple.
+
     open_ = row[('Open', ticker_symbol)]
     close = row[('Close', ticker_symbol)]
     high = row[('High', ticker_symbol)]
@@ -33,7 +31,6 @@ def is_doji(df: pd.DataFrame, i: int) -> bool:
     body = abs(open_ - close)
     range_ = high - low
 
-    # The comparison involves single numerical values, yielding a boolean result.
     return body <= 0.1 * range_
 
 def is_hammer(df: pd.DataFrame, i: int) -> bool:
@@ -64,7 +61,7 @@ def is_bullish_engulfing(df: pd.DataFrame, i: int) -> bool:
     Determines if a candlestick at a given index exhibits the "Bullish Engulfing" pattern.
     This is a two-candle bullish reversal where a large bullish candle completely covers a preceding bearish candle.
     """
-    # It is ensured that both the current and previous candles exist.
+   
     if i < 1 or i >= len(df):
         return False
 
