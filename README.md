@@ -12,4 +12,4 @@
 - Run `train.py` to train the model created, adjust batch size and no. of epochs according to your device constraints
 - Run `rag_setup.py` to loada and chunk text data, then build the FAISS index
 ### For the next step, ensure to download Ollama, and specifically the model 'gemma3:4b-it-qat' and keep it running for the model inference
-- Run  `explain.py` to get the inference and explaination pipeline to the VLM. Adjust image path accordingly in the script.
+- Run  `explain.py` to get the inference and explaination pipeline to the VLM. Adjust image path accordingly in the script
